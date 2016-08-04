@@ -1,0 +1,24 @@
+<script type="text/javascript">
+    searchrefs = function(){
+        console.log("CALLIIIIIIBN");
+        $.ajax({
+            url: "_plugin/zotero/available_zotero_resources/",
+            data: {
+                "pattern": $('#searchfield').val(),
+            },
+            type: "GET",
+            success: function(result){
+                console.log(result);
+                for (var i=0; i<result.length; i++) {
+                    $('#results').append(result[i] + "&nbsp;");
+                }
+            }
+        });
+    };
+</script>
+
+Hello!
+Here I will be trying to list the files.
+<input type="text" id="searchfield" placeholder="Search references">
+<button type="button" id="buttonfromhell" onclick="searchrefs()">aaaa</button>
+<div id="results"></div>
