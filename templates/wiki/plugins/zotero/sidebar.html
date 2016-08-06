@@ -1,21 +1,40 @@
+{% load sekizai_tags %}
+
+{% addtoblock "js" %}
 <script type="text/javascript">
-    searchrefs = function(){
-        console.log("CALLIIIIIIBN");
-        $.ajax({
-            url: "_plugin/zotero/available_zotero_resources/",
-            data: {
-                "pattern": $('#searchfield').val(),
-            },
-            type: "GET",
-            success: function(result){
-                console.log(result);
-                for (var i=0; i<result.length; i++) {
-                    $('#results').append(result[i] + "&nbsp;");
-                }
+searchrefs = function(){
+    console.log("CALLIIIIIIBN");
+    $.ajax({
+        url: "_plugin/zotero/available_zotero_resources/",
+        data: {
+            "pattern": $('#searchfield').val(),
+        },
+        type: "GET",
+        success: function(result){
+            console.log(result);
+            var res_element = $('#results');
+            res_element.empty();
+            for (var i=0; i<result.length; i++) {
+                res_element.append(
+                    "<div>"
+                        + result[i]['text']+
+                        "<a href=\"javascript:void(insert_reference('"+
+                            result[i]['key']+
+                        "'))\"> Insert<\/a>"+
+                    "</div>"
+                );
             }
-        });
-    };
+        }
+    });
+};
+insert_reference = function(zotero_id) {
+  var backup=prompt('Enter a backup text (to restore the referene if lost)');
+  var zoterotag = '\n[zotero:'+zotero_id+'|'+backup+']';
+  $('#id_content').insertAtCaret(zoterotag);
+}
 </script>
+{% endaddtoblock %}
+
 
 Hello!
 Here I will be trying to list the files.

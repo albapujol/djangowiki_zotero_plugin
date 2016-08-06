@@ -1,14 +1,49 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
-
-import re
+# from .zotero import zot
 
 import markdown
-from wiki.core.compat import render_to_string
 
-ZOTERO_RE = re.compile(
-    r'.*(\[zotero\:(?P<id>\d+)(\s+align\:(?P<align>right|left))?\s*\]).*',
-    re.IGNORECASE)
+ZOTERO_RE = r'\[zotero\:(?P<ref>[A-Z0-9]*)\|(?P<backup>[^\]]*?)\]'
+
+class ZoteroPattern(markdown.inlinepatterns.Pattern):
+    def handleMatch(self, m):
+        # mla = zot.top(itemKey=m.group(2), format='json', include='bib', style="mla")[0]["bib"]
+        # json = zot.top(itemKey=m.group(2))[0]
+        mla = "a"
+        json = {{"data":{"date":"a"}}, {"links":{"alternate":"b"}}}
+        tstring = json["data"]["creators"][0]["lastName"] + ", " + json["data"]["date"]
+        link = json["links"]["alternate"]["href"]
+        el = markdown.util.etree.Element("a")
+        el.attrib["id"] = m.group(2)
+        el.attrib["class"] = "zotero-span"
+        el.attrib["data-toggle"] = "popover"
+        el.attrib["data-trigger"] = "mouseenter"
+        el.attrib["title"] = mla
+        el.attrib["data-content"] = link
+        el.text = "[" + tstring + "]"
+        return el
+
+class ZoteroTreeProcessor(markdown.treeprocessors.Treeprocessor):
+    def run(self, tree):
+        # Get all tags
+        zotero_tags = []
+        for el in tree.iter():
+            try:
+                if el.attrib["class"] == "zotero-span":
+                    if el.attrib["id"] not in zotero_tags:
+                        zotero_tags.append(el.attrib["id"])
+            except KeyError:
+                pass
+        # Append something
+        if zotero_tags:
+            div = markdown.util.etree.Element("div")
+            div.text = ""
+            for tag in zotero_tags:
+                print tag
+                div.text += tag + " "
+            tree.append(div)
+        return tree
 
 
 class ZoteroExtension(markdown.Extension):
@@ -17,97 +52,20 @@ class ZoteroExtension(markdown.Extension):
 
     def extendMarkdown(self, md, md_globals):
         """ Insert ImagePreprocessor before ReferencePreprocessor. """
-        md.preprocessors.add('dw-zotero', ZoteroPreprocessor(md), '>html_block')
-        md.postprocessors.add('dw-zotero-cleanup', ZoteroPostprocessor(md), '>raw_html')
+        # md.preprocessors.add('dw-zotero', ZoteroPreprocessor(md), '>html_block')
+        zot_pattern = ZoteroPattern(ZOTERO_RE, markdown_instance=md)
+        zot_pattern.md = md
+        md.inlinePatterns.add('dw-zotero-pattern', zot_pattern, "<reference")
+        print("extension loaded")
+        zot_tree = ZoteroTreeProcessor(md)
+        md.treeprocessors.add("dw-zotero-bibtex", zot_tree, "_end")
+        # md.postprocessors.add('dw-zotero-summary', ZoteroPostprocessor(md), '>raw_html')
 
 
-class ZoteroPreprocessor(markdown.preprocessors.Preprocessor):
-    """
-    django-wiki image preprocessor
-    Parse text for [image:id align:left|right|center] references.
-    For instance:
-    [image:id align:left|right|center]
-        This is the caption text maybe with [a link](...)
-    So: Remember that the caption text is fully valid markdown!
-    """
+def makeExtension():
+    return ZoteroExtension()
 
-    def run(self, lines):
-        return lines
-        # new_text = []
-        # previous_line = ""
-        # line_index = None
-        # previous_line_was_image = False
-        # image = None
-        # image_id = None
-        # alignment = None
-        # caption_lines = []
-        # for line in lines:
-        #     m = IMAGE_RE.match(line)
-        #     if m:
-        #         previous_line_was_image = True
-        #         image_id = m.group('id').strip()
-        #         alignment = m.group('align')
-        #         try:
-        #             image = models.Image.objects.get(
-        #                 article=self.markdown.article,
-        #                 id=image_id,
-        #                 current_revision__deleted=False)
-        #         except models.Image.DoesNotExist:
-        #             pass
-        #         line_index = line.find(m.group(1))
-        #         line = line.replace(m.group(1), "")
-        #         previous_line = line
-        #         caption_lines = []
-        #     elif previous_line_was_image:
-        #         if line.startswith("    "):
-        #             caption_lines.append(line[4:])
-        #             line = None
-        #         else:
-        #             caption_placeholder = "{{{IMAGECAPTION}}}"
-        #             html = render_to_string(
-        #                 "wiki/plugins/images/render.html",
-        #                 context={
-        #                     'image': image,
-        #                     'caption': caption_placeholder,
-        #                     'align': alignment,
-        #                 })
-        #             html_before, html_after = html.split(caption_placeholder)
-        #             placeholder_before = self.markdown.htmlStash.store(
-        #                 html_before,
-        #                 safe=True)
-        #             placeholder_after = self.markdown.htmlStash.store(
-        #                 html_after,
-        #                 safe=True)
-        #             new_line = placeholder_before + "\n".join(
-        #                 caption_lines) + placeholder_after + "\n"
-        #             previous_line_was_image = False
-        #             if previous_line is not "":
-        #                 if previous_line[line_index:] is not "":
-        #                     new_line = new_line[0:-1]
-        #                 new_text[-1] = (previous_line[0:line_index] +
-        #                                 new_line +
-        #                                 previous_line[line_index:] +
-        #                                 "\n" +
-        #                                 line)
-        #                 line = None
-        #             else:
-        #                 line = new_line + line
-        #     if line is not None:
-        #         new_text.append(line)
-        # return new_text
-
-
-class ZoteroPostprocessor(markdown.postprocessors.Postprocessor):
-
-    def run(self, text):
-        return text
-#         """
-#         This cleans up after Markdown's well-intended placing of image tags
-#         inside <p> elements. The problem is that Markdown should put
-#         <p> tags around images as they are inline elements. However, because
-#         we wrap them in <figure>, we don't actually want it and have to
-#         remove it again after.
-#         """
-#         text = text.replace("<p><figure", "<figure")
-#         text = text.replace("</figure>\n</p>", "</figure>")
+# class ZoteroPostprocessor(markdown.postprocessors.Postprocessor):
+#
+#     def run(self, text):
 #         return text

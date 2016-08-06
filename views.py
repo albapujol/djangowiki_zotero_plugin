@@ -1,5 +1,4 @@
-from .zotero import zot
-from pprint import pprint
+from .zotero import zotero_port
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -10,8 +9,13 @@ def available_zotero_resources(request, path):
     The description goes there?!
     """
     try:
-        items = zot.top(q=request.query_params['pattern'], format='json', include='citation')
-        print items
-        return Response([i['citation'] for i in items])
+        return zotero_port.query_elements(request.query_params["pattern"])
     except KeyError:
-        return Response({})
+        return Response([])
+
+@api_view(['GET'])
+def bibtex_file(request, path):
+    """
+    API to call to retrieve the bibtex fille of the keys referred in the request
+    """
+    pass

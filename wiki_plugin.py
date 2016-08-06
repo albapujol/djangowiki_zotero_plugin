@@ -7,8 +7,6 @@ from wiki.core.plugins import registry
 from wiki.core.plugins.base import BasePlugin
 from . import models, settings, views
 from .markdown_extensions import ZoteroExtension
-from wiki.plugins.notifications.settings import ARTICLE_EDIT
-from wiki.plugins.notifications.util import truncate_title
 
 
 class ZoteroPlugin(BasePlugin):
@@ -74,7 +72,6 @@ class ZoteroPlugin(BasePlugin):
     markdown_extensions = [ZoteroExtension()]
 
     def __init__(self):
-        print "Zotero: I WAS LOADED!"
         pass
 
 registry.register(ZoteroPlugin)
