@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
-# from .zotero import zot
+from .zotero import zotero_port
 
 import markdown
 
@@ -8,20 +8,19 @@ ZOTERO_RE = r'\[zotero\:(?P<ref>[A-Z0-9]*)\|(?P<backup>[^\]]*?)\]'
 
 class ZoteroPattern(markdown.inlinepatterns.Pattern):
     def handleMatch(self, m):
-        # mla = zot.top(itemKey=m.group(2), format='json', include='bib', style="mla")[0]["bib"]
-        # json = zot.top(itemKey=m.group(2))[0]
-        mla = "a"
-        json = {{"data":{"date":"a"}}, {"links":{"alternate":"b"}}}
-        tstring = json["data"]["creators"][0]["lastName"] + ", " + json["data"]["date"]
-        link = json["links"]["alternate"]["href"]
+        data = zotero_port.get_elemment(m.group(2))
         el = markdown.util.etree.Element("a")
         el.attrib["id"] = m.group(2)
         el.attrib["class"] = "zotero-span"
         el.attrib["data-toggle"] = "popover"
-        el.attrib["data-trigger"] = "mouseenter"
-        el.attrib["title"] = mla
-        el.attrib["data-content"] = link
-        el.text = "[" + tstring + "]"
+        el.attrib["title"] = data['citation']
+        el.attrib["data-content"] = "<a  role='button' data-toggle='collapse' data-placement='bottom' " \
+                                    "href='#collapseExample' aria-expanded='false' " \
+                                    "aria-controls='collapseExample'> Link with href </a>" \
+                                    "<div class='collapse' id='collapseExample'>" + \
+                                    data['url'] + data['abstract'] + \
+                                    "</div>"
+        el.text = "[" + data['bibtex_key'] + "]"
         return el
 
 class ZoteroTreeProcessor(markdown.treeprocessors.Treeprocessor):

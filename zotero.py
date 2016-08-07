@@ -1,17 +1,10 @@
+import re
 from pyzotero import zotero as zotero_api
 from . import settings
 from . import models
 
-from pyzotero import zotero
-# zotero_key = '1IIOOfDvfYEtDi3sDcBFPZx1'
-# zotero_id = '1785240'
-# zot = zotero.Zotero(zotero_id, 'user', zotero_key)
+BIBTEX_REGEX = r'{(?P<backup>[^\]]*?),'
 
-from pyzotero import zotero as zotero_api
-from . import settings
-from . import models
-#
-#
 class ZoteroWrapper():
     def __init__(self):
         self.id = settings.ZOTERO_ID #if id is None else id
@@ -23,10 +16,41 @@ class ZoteroWrapper():
         res = self.client.top(q=query, format='json', include='citation')
         return [{'text':i['citation'], 'key':i['key']} for i in res]
 
-zotero_port = ZoteroWrapper()
+    def get_elemment(self, key):
+        try:
+            obj = models.ZoteroReference.objects.filter(key=key)[0]
+            return {
+                'bibtex_key': obj.bibtex_key,
+                'url': obj.url,
+                'bibtex': obj.bibtex,
+                'citation': obj.citation,
+                'abstract': obj.abstract
+            }
+        except IndexError:
+            citation = self.client.top(itemKey=key, format='json', include='bib', style="mla")[0]["bib"]
+            bibtex = self.client.top(itemKey=key, format='json', include='bib', style="bibtex")[0]["bib"]
+            json = self.client.top(itemKey=key)[0]
+            url = json['links']["alternate"]['href']
+            abstract= json['data']['abstractNote']
+            bibtex_key = re.search(BIBTEX_REGEX, bibtex).group(1)
+            models.ZoteroReference.objects.get_or_create(
+                key=key,
+                bibtex_key=bibtex_key,
+                url=url,
+                bibtex=bibtex,
+                citation=citation,
+                abstract=abstract
+            )
+            obj = models.ZoteroReference.objects.filter(key=key)[0]
+            return {
+                'bibtex_key': obj.bibtex_key,
+                'url': obj.url,
+                'bibtex': obj.bibtex,
+                'citation': obj.citation,
+                'abstract': obj.abstract
+            }
 
-# zot = zotero.Zotero(zotero_id, 'user', zotero_key)
-#
+
+
+
 zotero_port = ZoteroWrapper()
-#
-# # zot = zotero.Zotero(zotero_id, 'user', zotero_key)
