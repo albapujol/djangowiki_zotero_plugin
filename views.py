@@ -9,7 +9,7 @@ def available_zotero_resources(request, path):
     The description goes there?!
     """
     try:
-        return zotero_port.query_elements(request.query_params["pattern"])
+        return Response(zotero_port.query_elements(request.query_params["pattern"]))
     except KeyError:
         return Response([])
 

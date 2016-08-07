@@ -20,6 +20,7 @@ class ZoteroWrapper():
         try:
             obj = models.ZoteroReference.objects.filter(key=key)[0]
             return {
+                'key': key,
                 'bibtex_key': obj.bibtex_key,
                 'url': obj.url,
                 'bibtex': obj.bibtex,
@@ -31,7 +32,7 @@ class ZoteroWrapper():
             bibtex = self.client.top(itemKey=key, format='json', include='bib', style="bibtex")[0]["bib"]
             json = self.client.top(itemKey=key)[0]
             url = json['links']["alternate"]['href']
-            abstract= json['data']['abstractNote']
+            abstract = json['data']['abstractNote']
             bibtex_key = re.search(BIBTEX_REGEX, bibtex).group(1)
             models.ZoteroReference.objects.get_or_create(
                 key=key,
@@ -39,10 +40,12 @@ class ZoteroWrapper():
                 url=url,
                 bibtex=bibtex,
                 citation=citation,
-                abstract=abstract
+                abstract=abstract,
+                # json=json,
             )
             obj = models.ZoteroReference.objects.filter(key=key)[0]
             return {
+                'key': key,
                 'bibtex_key': obj.bibtex_key,
                 'url': obj.url,
                 'bibtex': obj.bibtex,

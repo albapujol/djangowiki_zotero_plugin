@@ -28,8 +28,7 @@ searchrefs = function(){
     });
 };
 insert_reference = function(zotero_id) {
-  var backup=prompt('Enter a backup text (to restore the referene if lost)');
-  var zoterotag = '\n[zotero:'+zotero_id+'|'+backup+']';
+  var zoterotag = '\n[zotero:'+zotero_id+']';
   $('#id_content').insertAtCaret(zoterotag);
 }
 </script>
