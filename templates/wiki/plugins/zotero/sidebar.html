@@ -3,7 +3,6 @@
 {% addtoblock "js" %}
 <script type="text/javascript">
 searchrefs = function(){
-    console.log("CALLIIIIIIBN");
     $.ajax({
         url: "_plugin/zotero/available_zotero_resources/",
         data: {
@@ -34,9 +33,7 @@ insert_reference = function(zotero_id) {
 </script>
 {% endaddtoblock %}
 
-
-Hello!
-Here I will be trying to list the files.
+Search references in Zotero library
 <input type="text" id="searchfield" placeholder="Search references">
-<button type="button" id="buttonfromhell" onclick="searchrefs()">aaaa</button>
+<button type="button" id="buttonfromhell" onclick="searchrefs()">Search</button>
 <div id="results"></div>

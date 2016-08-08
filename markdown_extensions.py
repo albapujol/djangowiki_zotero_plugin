@@ -9,7 +9,7 @@ ZOTERO_RE = r'\[zotero\:(?P<ref>[A-Z0-9]*)\]'
 
 class ZoteroPattern(markdown.inlinepatterns.Pattern):
     def handleMatch(self, m):
-        data = zotero_port.get_elemment(m.group(2))
+        data = zotero_port.get_element(m.group(2))
         innertext = """
                 Reference: <a href='%(url)s'>%(url)s</a> <br />
                 <a role='button' data-toggle='collapse' href='#%(key)s_abstract' aria-expanded='false'
@@ -27,7 +27,6 @@ class ZoteroPattern(markdown.inlinepatterns.Pattern):
                     <pre><code>%(bibtex)s</code></pre>
                 </div>
             """ % data
-        pprint(data['bibtex'])
         el = markdown.util.etree.Element("span")
         # el.attrib["href"] = "#"
         el.attrib["id"] = m.group(2)
@@ -93,10 +92,14 @@ class ZoteroTreeProcessor(markdown.treeprocessors.Treeprocessor):
                                                                       "id": "zotero-bibtex"})
             nested = markdown.util.etree.SubElement(nested, "h4", {"class": "panel-body"})
             nested = markdown.util.etree.SubElement(nested, "div", {})
+            nested = markdown.util.etree.SubElement(nested, "pre", {"style": "max-width:100%; max-height:100%;"})
+            nested = markdown.util.etree.SubElement(nested, "code", {})
+            nested.text = ""
             for tag in zotero_tags:
-                data = zotero_port.get_elemment(tag)
-                parsed = markdown.util.etree.fromstring(data["bibtex"])
-                nested.append(parsed)
+                data = zotero_port.get_element(tag)
+                # parsed = markdown.util.etree.fromstring(data["bibtex"])
+                # nested.append(parsed)
+                nested.text += data["bibtex"] + '\n'
             tree.append(main_div)
         return tree
 
