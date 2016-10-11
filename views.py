@@ -16,6 +16,14 @@ def available_zotero_resources(request, path):
 @api_view(['GET'])
 def bibtex_file(request, path):
     """
-    API to call to retrieve the bibtex fille of the keys referred in the request
+    API to call to retrieve the bibtex file of the keys referred in the request
+    """
+    pass
+
+
+@api_view(['GET'])
+def attachment_file(request, path):
+    """
+    API to call to retrieve the attachment file of the key referred in the request
     """
     pass

@@ -25,6 +25,7 @@ searchrefs = function(){
             }
         }
     });
+    event.preventDefault();
 };
 insert_reference = function(zotero_id) {
   var zoterotag = '\n[zotero:'+zotero_id+']';
@@ -34,6 +35,7 @@ insert_reference = function(zotero_id) {
 {% endaddtoblock %}
 
 Search references in Zotero library
-<input type="text" id="searchfield" placeholder="Search references">
+<input type="text" id="searchfield" placeholder="Search references"
+       onkeydown="if (event.keycode == 13) searchrefs()">
 <button type="button" id="buttonfromhell" onclick="searchrefs()">Search</button>
 <div id="results"></div>

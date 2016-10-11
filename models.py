@@ -11,3 +11,7 @@ class ZoteroReference(models.Model):
     fetch_timestamp = models.DateTimeField(auto_now=True)
     # json = JSONField()
 
+class ZoteroAttachment(models.Model):
+    reference = models.ForeignKey(ZoteroReference)
+    key = models.CharField(max_length=8, unique=True)
+    attachment = models.FileField(upload_to='zotero/', blank=True)

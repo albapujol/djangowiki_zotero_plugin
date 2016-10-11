@@ -45,6 +45,8 @@ class ZoteroPlugin(BasePlugin):
     urlpatterns = {'article': [
         url('^available_zotero_resources/$',
             views.available_zotero_resources),
+        url('^get_attachment$',
+            views.attachment_file)
     ]}
 
     # urlpatterns = {'article': [

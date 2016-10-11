@@ -14,3 +14,9 @@ ZOTERO_REFRESH_RATE = {
     'days': 0,
     'weeks': 8,
 }
+
+WEBDAV_URL = 'your_webdav_url'
+WEBDAV_PATH = 'your_webdav_password'
+WEBDAV_PROTOCOL = 'https'
+WEBDAV_USER = 'your_webdav_user'
+WEBDAV_PASSWORD = 'your_webdav_password'
