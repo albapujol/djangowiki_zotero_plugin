@@ -9,10 +9,10 @@ ZOTERO_BIB_STYLE = 'mla'
 
 ZOTERO_REFRESH_RATE = {
     'seconds': 0,
-    'minutes': 1,
+    'minutes': 0,
     'hours': 0,
     'days': 0,
-    'weeks': 0,
+    'weeks': 4,
 }
 
 WEBDAV_URL = 'your_webdav_url'

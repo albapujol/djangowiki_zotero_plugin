@@ -10,11 +10,16 @@ ZOTERO_RE = r'\[zotero\:(?P<ref>[A-Z0-9]*)\]'
 class ZoteroPattern(markdown.inlinepatterns.Pattern):
     def handleMatch(self, m):
         data = zotero_port.get_element(m.group(2))
+        blank_attachment = """
+        <div>
+            <a role='button' href='#'>Attachment unavailable</a>
+        </div>
+        """
         data['downloads_html'] = "".join(["""
         <div>
             <a role='button' href=%s>Download reference</a>
         </div>
-        """ % d.attachment.url for d in data['downloads']])
+        """ % d.attachment.url if d.attachment else blank_attachment for d in data['downloads']])
         innertext = """
                 Reference: <a href='%(url)s'>%(url)s</a> <br />
                 <a role='button' data-toggle='collapse' href='#%(key)s_abstract' aria-expanded='false'
