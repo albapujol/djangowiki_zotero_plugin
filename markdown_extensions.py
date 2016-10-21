@@ -10,6 +10,11 @@ ZOTERO_RE = r'\[zotero\:(?P<ref>[A-Z0-9]*)\]'
 class ZoteroPattern(markdown.inlinepatterns.Pattern):
     def handleMatch(self, m):
         data = zotero_port.get_element(m.group(2))
+        data['downloads_html'] = "".join(["""
+        <div>
+            <a role='button' href=%s>Download reference</a>
+        </div>
+        """ % d.attachment.url for d in data['downloads']])
         innertext = """
                 Reference: <a href='%(url)s'>%(url)s</a> <br />
                 <a role='button' data-toggle='collapse' href='#%(key)s_abstract' aria-expanded='false'
@@ -26,6 +31,7 @@ class ZoteroPattern(markdown.inlinepatterns.Pattern):
                 <div class='collapse' id='%(key)s_bibtex'>
                     <pre><code>%(bibtex)s</code></pre>
                 </div>
+                %(downloads_html)s
             """ % data
         el = markdown.util.etree.Element("span")
         # el.attrib["href"] = "#"
@@ -41,7 +47,7 @@ class ZoteroPattern(markdown.inlinepatterns.Pattern):
             #                         "aria-controls='collapseExample'> Link with href </a>" \
             #                         "<div class='collapse' id='collapseExample'>" + \
             #                         data['url'] + data['abstract'] + \
-            #                         "</div>"
+            #                         "</div>"attachment_set
         el.text = "[" + data['bibtex_key'] + "]"
         return el
 
