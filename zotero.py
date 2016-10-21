@@ -23,7 +23,9 @@ class ZoteroWrapper():
                                                 path=settings.WEBDAV_PATH,
                                                 username=settings.WEBDAV_USER,
                                                 password=settings.WEBDAV_PASSWORD,
-                                                protocol=settings.WEBDAV_PROTOCOL)
+                                                protocol=settings.WEBDAV_PROTOCOL,
+                                                verify_ssl=False
+                                                )
         self.style= settings.ZOTERO_BIB_STYLE
 
     def query_elements(self, query):
