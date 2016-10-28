@@ -1,0 +1,3 @@
+Pyzotero==1.1.16
+easywebdav==1.2.0
+django-cleanup==0.4.2
